@@ -1,3 +1,4 @@
+// src/ModelSelectionModal.ts
 import { App, Modal } from 'obsidian';
 
 /**
@@ -28,4 +29,4 @@ export class ModelSelectionModal extends Modal {
 	onClose() {
 		this.contentEl.empty();
 	}
-} 
+}

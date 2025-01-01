@@ -1,13 +1,14 @@
+// src/AddCanvasLinkNodePlugin.ts
+
 import { Plugin } from 'obsidian';
 import { ModelSelectionModal } from './ModelSelectionModal';
-import { CanvasPolling } from './CanvasPolling';
 import { ModelSwitcher } from './ModelSwitcher';
+import { saveAllWebviewUrls } from './CanvasSaveHelper';
 
 /**
  * Main plugin entry point.
  */
 export default class AddCanvasLinkNodePlugin extends Plugin {
-	private canvasPolling: CanvasPolling | null = null;
 	private modelSwitcher: ModelSwitcher | null = null;
 
 	async onload() {
@@ -21,14 +22,13 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 			}).open();
 		});
 
-		// 2) The 5-second polling feature
-		this.canvasPolling = new CanvasPolling(this.app, 5000);
-		this.canvasPolling.start();
+		// 2) "Save Webview URLs" button
+		this.addRibbonIcon('save', 'Save Webviews to JSON', async () => {
+			await saveAllWebviewUrls(this.app);
+		});
 	}
 
 	async onunload() {
 		console.log('AddCanvasLinkNodePlugin unloaded');
-		// Stop polling
-		this.canvasPolling?.stop();
 	}
-} 
+}

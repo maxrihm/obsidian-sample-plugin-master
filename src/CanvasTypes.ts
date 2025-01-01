@@ -1,21 +1,23 @@
+// src/CanvasTypes.ts
+
 /**
- * Represents a single node in the .canvas file (e.g., type = "link", "text", etc.)
+ * Represents a single node in the .canvas file (e.g., "link", "text", etc.)
  */
 export interface CanvasNode {
 	id: string;
 	type: string;
-	url?: string;
+	url?: string;          // We'll store the "current webview src" here
 	x: number;
 	y: number;
 	width: number;
 	height: number;
-	[key: string]: unknown; // e.g. "lastUrl" or other custom props
+	[key: string]: unknown; // for any additional keys
 }
 
 /**
- * Represents the .canvas file structure
+ * Represents the .canvas JSON data
  */
 export interface CanvasData {
 	nodes: CanvasNode[];
 	edges: unknown[];
-} 
+}

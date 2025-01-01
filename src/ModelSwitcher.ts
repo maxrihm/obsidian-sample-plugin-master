@@ -1,9 +1,10 @@
+// src/ModelSwitcher.ts
 import { App, Notice } from 'obsidian';
 import { CanvasData, CanvasNode } from './CanvasTypes';
 import { parseTransformToXY } from './transformParser';
 
 /**
- * Logic to create a new "link" node in the .canvas, then inject JS to switch model in a <webview>.
+ * Logic to create a new "link" node in the .canvas, then inject JS into <webview> to switch model.
  */
 export class ModelSwitcher {
 	private app: App;
@@ -13,7 +14,7 @@ export class ModelSwitcher {
 	}
 
 	/**
-	 * Creates a new link node, then calls injectJSForModelClick after 2s.
+	 * Creates a new link node, then calls `injectJSForModelClick` after a delay.
 	 */
 	public async addAndSwitchModel(chosenModel: string) {
 		let indexToClick: number;
@@ -61,7 +62,7 @@ export class ModelSwitcher {
 
 			new Notice(`Created ChatGPT node at (${x}, ${y}). Now injecting model selection...`);
 
-			// Wait 2 seconds for the node to render
+			// Wait 2 seconds for the node to render in the canvas, then inject
 			setTimeout(() => {
 				this.injectJSForModelClick(x, y, w, h, indexToClick);
 			}, 2000);
@@ -72,7 +73,7 @@ export class ModelSwitcher {
 	}
 
 	/**
-	 * Find the .canvas-node in DOM by coords, then inject JS into <webview> to select the model.
+	 * Finds the DOM .canvas-node by (x,y,width,height), then injects JS to "click" the model dropdown in the webview.
 	 */
 	private async injectJSForModelClick(
 		x: number,
@@ -85,7 +86,7 @@ export class ModelSwitcher {
 		let foundElement: HTMLElement | null = null;
 
 		for (const el of allDomNodes) {
-			const style = window.getComputedStyle(el as HTMLElement);
+			const style = window.getComputedStyle(el);
 			const { x: domX, y: domY } = parseTransformToXY(style.transform);
 			const w = parseFloat(style.width) || 0;
 			const h = parseFloat(style.height) || 0;
@@ -147,4 +148,4 @@ export class ModelSwitcher {
 			console.error('Error injecting JS to select model:', err);
 		}
 	}
-} 
+}

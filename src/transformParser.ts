@@ -1,6 +1,8 @@
+// src/transformParser.ts
+
 /**
  * Parse the "transform" CSS string (e.g. "translate(200px, -1000px) scale(1)") 
- * to extract an (x, y) translation, even if negative or in matrix form.
+ * to extract (x, y) translation, even if negative or in matrix(...) form.
  */
 export function parseTransformToXY(transformString: string): { x: number; y: number } {
 	let x = 0;
@@ -19,7 +21,7 @@ export function parseTransformToXY(transformString: string): { x: number; y: num
 		return { x, y };
 	}
 
-	// Check for "matrix3d(...)" – x = index12, y = index13
+	// Check for "matrix3d(...)"
 	const matrix3dRegex = /^matrix3d\(\s*([\-\d.]+(?:,\s*[\-\d.]+){14})\)/;
 	let m3 = matrix3dRegex.exec(transformString);
 	if (m3) {
@@ -29,8 +31,7 @@ export function parseTransformToXY(transformString: string): { x: number; y: num
 		return { x, y };
 	}
 
-	// If there's a chained transform with translate(...) scale(...) rotate(...), 
-	// we only care about translate(...)
+	// If there's a chained transform with translate(...) scale(...) etc.
 	const allFunctionsRegex = /(\w+)\(([^)]+)\)/g;
 	let funcMatch;
 	while ((funcMatch = allFunctionsRegex.exec(transformString)) !== null) {
@@ -49,4 +50,4 @@ export function parseTransformToXY(transformString: string): { x: number; y: num
 	}
 
 	return { x, y };
-} 
+}
