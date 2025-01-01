@@ -1,3 +1,5 @@
+// src/AddCanvasLinkNodePlugin.ts
+
 import { Plugin, Notice } from 'obsidian';
 import { ModelSelectionModal } from './ModelSelectionModal';
 import { ModelSwitcher } from './ModelSwitcher';
@@ -10,9 +12,7 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 	async onload() {
 		console.log('[PLUGIN] AddCanvasLinkNodePlugin loaded');
 
-		//
 		// 1) "Add & Switch Model" button
-		//
 		this.modelSwitcher = new ModelSwitcher(this.app);
 		this.addRibbonIcon('zap', 'Add & Switch Model', () => {
 			new ModelSelectionModal(this.app, (chosenModel: string) => {
@@ -20,16 +20,12 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 			}).open();
 		});
 
-		//
 		// 2) "Save Webview URLs" button
-		//
 		this.addRibbonIcon('save', 'Save Webviews to JSON', async () => {
 			await saveAllWebviewUrls(this.app);
 		});
 
-		//
 		// 3) Intercept Backspace at the document level
-		//
 		document.addEventListener(
 			'keydown',
 			(evt) => {
@@ -45,16 +41,16 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 
 	/**
 	 * Intercepts Backspace:
-	 * - If ANY selected node has a URL containing chatgpt.com,
-	 *   block the default deletion,
-	 *   dispatch Ctrl+Shift+Backspace,
-	 *   click "Delete" button,
-	 *   and run coordinate-based injection on EACH matching node.
+	 * - If ANY selected node has a URL containing chatgpt.com, block normal backspace,
+	 *   dispatch Ctrl+Shift+Backspace, click "Delete" after 1s,
+	 *   call injection on EACH matching node,
+	 *   THEN after 3s, programmatically call the Canvas "deleteSelection()" 
+	 *   to mimic the normal backspace behavior (because a synthetic event won't do it).
 	 */
 	private handleBackspace(evt: KeyboardEvent) {
-		// Avoid infinite recursion from synthetic events
+		// Prevent recursion from synthetic events
 		if (!evt.isTrusted) {
-			console.log('[PLUGIN] Synthetic Backspace event -> skip.');
+			console.log('[PLUGIN] Synthetic Backspace -> skip.');
 			return;
 		}
 
@@ -67,7 +63,7 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 		const selection = canvas.selection;
 		if (!selection || selection.size === 0) return;
 
-		// Check if ANY selected node is chatgpt.com
+		// See if ANY selected node is chatgpt.com
 		let foundChatGpt = false;
 		for (const node of selection) {
 			const url = node?.unknownData?.url || node?.url;
@@ -78,13 +74,13 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 		}
 		if (!foundChatGpt) return;
 
-		// BLOCK normal backspace
+		// 1) Block the normal backspace
 		console.log('[PLUGIN] Backspace blocked for ChatGPT node(s).');
 		evt.preventDefault();
 		evt.stopPropagation();
 		evt.stopImmediatePropagation();
 
-		// 1) Dispatch Ctrl+Shift+Backspace globally
+		// 2) Dispatch Ctrl+Shift+Backspace globally
 		const ctrlShiftBackspaceEvent = new KeyboardEvent('keydown', {
 			key: 'Backspace',
 			code: 'Backspace',
@@ -95,7 +91,7 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 		});
 		document.dispatchEvent(ctrlShiftBackspaceEvent);
 
-		// 2) After 1 second, click "Delete" button
+		// 3) After 1s, click "Delete" button
 		setTimeout(() => {
 			console.log('[PLUGIN] Trying to click "Delete" button...');
 			const deleteBtn = document.querySelector(
@@ -109,18 +105,24 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 			}
 		}, 1000);
 
-		// 3) For EACH selected node with chatgpt.com, do coordinate-based injection
+		// 4) For EACH selected node with chatgpt.com => do coordinate-based injection
 		for (const node of selection) {
 			const url = node?.unknownData?.url || node?.url;
 			if (url && url.includes('chatgpt.com')) {
 				this.injectJSLikeModelSwitcher(node.x, node.y, node.width, node.height);
 			}
 		}
+
+		// 5) After 3s, mimic the "real" backspace by calling Canvas's own deleteSelection()
+		setTimeout(() => {
+			console.log('[PLUGIN] Doing normal canvas.deleteSelection() after 3s...');
+			canvas.deleteSelection(); 
+		}, 3000);
 	}
 
 	/**
 	 * Finds the DOM .canvas-node by (x, y, width, height),
-	 * then calls webview.executeJavaScript() on it.
+	 * then calls webview.executeJavaScript().
 	 */
 	private async injectJSLikeModelSwitcher(
 		x: number,
@@ -131,7 +133,6 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 		const allDomNodes = Array.from(document.querySelectorAll('.canvas-node'));
 		let foundElement: HTMLElement | null = null;
 
-		// Find the single .canvas-node matching these coords
 		for (const el of allDomNodes) {
 			const style = window.getComputedStyle(el);
 			const { x: domX, y: domY } = parseTransformToXY(style.transform);
@@ -160,7 +161,8 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 			return;
 		}
 
-		// The snippet to inject
+		// This snippet triggers Ctrl+Shift+Backspace, clicks Delete after 1s,
+		// and prevents default Backspace in the webview.
 		const scriptToInject = `
 			// 1. Attempt to simulate Ctrl+Shift+Backspace
 			const ctrlShiftBackspaceEvent = new KeyboardEvent('keydown', {
