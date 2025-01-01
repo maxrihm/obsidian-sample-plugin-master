@@ -117,7 +117,7 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 		setTimeout(() => {
 			console.log('[PLUGIN] Doing normal canvas.deleteSelection() after 3s...');
 			canvas.deleteSelection(); 
-		}, 3000);
+		}, 2000);
 	}
 
 	/**
