@@ -25,6 +25,26 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 			await saveAllWebviewUrls(this.app);
 		});
 
+		// --- NEW COMMANDS FOR HOTKEYS ---
+		this.addCommand({
+			id: 'add-and-switch-model',
+			name: 'Add & Switch Model',
+			callback: () => {
+				new ModelSelectionModal(this.app, (chosenModel: string) => {
+					this.modelSwitcher?.addAndSwitchModel(chosenModel);
+				}).open();
+			},
+		});
+
+		this.addCommand({
+			id: 'save-webviews-to-json',
+			name: 'Save Webviews to JSON',
+			callback: async () => {
+				await saveAllWebviewUrls(this.app);
+			},
+		});
+		// --- END NEW COMMANDS FOR HOTKEYS ---
+
 		// 3) Intercept Backspace at the document level
 		document.addEventListener(
 			'keydown',

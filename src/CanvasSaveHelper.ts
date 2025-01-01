@@ -10,6 +10,7 @@ import { CanvasData } from './CanvasTypes';
 export async function saveAllWebviewUrls(app: App) {
 	const activeFile = app.workspace.getActiveFile();
 	if (!activeFile || activeFile.extension !== 'canvas') {
+		new Notice('No active .canvas file found.');
 		return;
 	}
 
@@ -19,12 +20,14 @@ export async function saveAllWebviewUrls(app: App) {
 		canvasData = JSON.parse(jsonRaw) as CanvasData;
 	} catch (err) {
 		console.error('[SaveCanvas] Error reading .canvas file:', err);
+		new Notice('Error: Could not read the canvas file.');
 		return;
 	}
 
 	// Gather all .canvas-node elements
 	const allDomNodes = Array.from(document.querySelectorAll('.canvas-node'));
 	if (!allDomNodes.length) {
+		new Notice('No .canvas-node elements found in DOM.');
 		return;
 	}
 
@@ -66,9 +69,12 @@ export async function saveAllWebviewUrls(app: App) {
 	if (changed) {
 		try {
 			await app.vault.modify(activeFile, JSON.stringify(canvasData, null, 2));
+			new Notice('Saved all webview URLs to .canvas JSON!');
 		} catch (err) {
 			console.error('[SaveCanvas] Failed to modify .canvas file:', err);
+			new Notice('Error: Could not save updated canvas data.');
 		}
 	} else {
+		new Notice('Nothing changed. All webview URLs already match the JSON.');
 	}
 }
