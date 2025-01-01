@@ -33,15 +33,35 @@ export class ModelSwitcher {
 				return;
 		}
 
-		// Example coords
-		const x = 200, y = -1000, w = 760, h = 800;
-		const linkUrl = 'https://chatgpt.com';
+		// --- CHANGED CODE STARTS HERE ---
+		// Instead of hard-coded coords, grab the current camera center from the active canvas
+// ...
+const activeLeaf = this.app.workspace.activeLeaf;
+if (!activeLeaf || !activeLeaf.view || !activeLeaf.view.canvas) {
+  new Notice('No active .canvas found.');
+  return;
+}
+const canvas = activeLeaf.view.canvas;
 
-		const activeFile = this.app.workspace.getActiveFile();
-		if (!activeFile || activeFile.extension !== 'canvas') {
-			new Notice('No active .canvas file found.');
-			return;
-		}
+// Desired node size
+const w = 760;
+const h = 800;
+
+// Center the node on the camera
+const x = canvas.x - w / 2;
+const y = canvas.y - h / 2;
+
+const linkUrl = 'https://chatgpt.com';
+
+const activeFile = this.app.workspace.getActiveFile();
+if (!activeFile || activeFile.extension !== 'canvas') {
+  new Notice('No active .canvas file found.');
+  return;
+}
+
+// now push the new node to the .canvas JSON...
+// ...
+
 
 		try {
 			const content = await this.app.vault.read(activeFile);
@@ -73,7 +93,8 @@ export class ModelSwitcher {
 	}
 
 	/**
-	 * Finds the DOM .canvas-node by (x,y,width,height), then injects JS to "click" the model dropdown in the webview.
+	 * Finds the DOM .canvas-node by (x,y,width,height), then injects JS to
+	 * "click" the model dropdown in the webview.
 	 */
 	private async injectJSForModelClick(
 		x: number,
