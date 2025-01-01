@@ -6,7 +6,7 @@
 
 
 tsconfig.json
-
+.filesignore
 esbuild.config.mjs
 
 README.md
