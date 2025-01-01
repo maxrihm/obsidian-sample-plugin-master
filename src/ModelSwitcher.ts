@@ -34,7 +34,7 @@ export class ModelSwitcher {
 		}
 
 		// Example coords
-		const x = 200, y = -1000, w = 860, h = 800;
+		const x = 200, y = -1000, w = 760, h = 800;
 		const linkUrl = 'https://chatgpt.com';
 
 		const activeFile = this.app.workspace.getActiveFile();
