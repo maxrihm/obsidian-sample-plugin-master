@@ -29,7 +29,6 @@ export class ModelSwitcher {
 				indexToClick = 3;
 				break;
 			default:
-				new Notice(`Unknown model: ${chosenModel}`);
 				return;
 		}
 
@@ -38,7 +37,6 @@ export class ModelSwitcher {
 // ...
 const activeLeaf = this.app.workspace.activeLeaf;
 if (!activeLeaf || !activeLeaf.view || !activeLeaf.view.canvas) {
-  new Notice('No active .canvas found.');
   return;
 }
 const canvas = activeLeaf.view.canvas;
@@ -55,7 +53,6 @@ const linkUrl = 'https://chatgpt.com';
 
 const activeFile = this.app.workspace.getActiveFile();
 if (!activeFile || activeFile.extension !== 'canvas') {
-  new Notice('No active .canvas file found.');
   return;
 }
 
@@ -80,7 +77,6 @@ if (!activeFile || activeFile.extension !== 'canvas') {
 			canvasData.nodes.push(newLinkNode);
 			await this.app.vault.modify(activeFile, JSON.stringify(canvasData, null, 2));
 
-			new Notice(`Created ChatGPT node at (${x}, ${y}). Now injecting model selection...`);
 
 			// Wait 2 seconds for the node to render in the canvas, then inject
 			setTimeout(() => {
@@ -88,7 +84,6 @@ if (!activeFile || activeFile.extension !== 'canvas') {
 			}, 2000);
 		} catch (err) {
 			console.error('Failed to update .canvas file:', err);
-			new Notice('Error: Could not update the canvas.');
 		}
 	}
 
@@ -164,7 +159,6 @@ if (!activeFile || activeFile.extension !== 'canvas') {
 
 		try {
 			await webview.executeJavaScript(scriptToInject, false);
-			new Notice(`Injected model-switch JS (clicked index=${indexToClick}).`);
 		} catch (err) {
 			console.error('Error injecting JS to select model:', err);
 		}

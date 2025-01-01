@@ -198,7 +198,6 @@ export default class AddCanvasLinkNodePlugin extends Plugin {
 
 		try {
 			await webview.executeJavaScript(scriptToInject, false);
-			new Notice('Injected JS via backspace override.');
 		} catch (err) {
 			console.error('[PLUGIN] Failed to inject JS:', err);
 		}
