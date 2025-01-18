@@ -23,10 +23,10 @@ export class ModelSwitcher {
 				indexToClick = 0;
 				break;
 			case 'o1':
-				indexToClick = 1;
+				indexToClick = 2;
 				break;
 			case 'o1-pro':
-				indexToClick = 3;
+				indexToClick = 4;
 				break;
 			default:
 				return;
