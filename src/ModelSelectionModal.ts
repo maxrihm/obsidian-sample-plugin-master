@@ -16,7 +16,7 @@ export class ModelSelectionModal extends Modal {
 		const { contentEl } = this;
 		contentEl.createEl('h2', { text: 'Select ChatGPT Model' });
 
-		const models = ['4o', 'o1', 'o1-pro'];
+		const models = ['4o', 'o1', 'o3-mini-high', 'o1-pro'];
 		models.forEach((model) => {
 			const btn = contentEl.createEl('button', { text: model });
 			btn.addEventListener('click', () => {
